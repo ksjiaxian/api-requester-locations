@@ -23,7 +23,6 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                                 'output': "json",
                                 "key":"AjhzSUKjNFFV0ckKVCV64tSLhw_EWSlN6LP9UPiWdEJDRMZn3Vm17HtoSclZZfO_ "})
 
-            
             try:
                 data = response.json()
                 
