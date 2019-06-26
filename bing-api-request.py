@@ -18,7 +18,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             #bing
             response = requests.get("http://dev.virtualearth.net/REST/v1/Locations/" + address,
                         params={"include":"queryParse",
-                                "key":"AjhzSUKjNFFV0ckKVCV64tSLhw_EWSlN6LP9UPiWdEJDRMZn3Vm17HtoSclZZfO_ "})
+                                "key":"PUT KEY HERE"})
 
             try:
                 #bing

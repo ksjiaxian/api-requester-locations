@@ -17,13 +17,13 @@ with open('files/affiliationnamefreq100_withlocations_BING.tsv', encoding='latin
             
             #google
             #response = requests.get("https://maps.googleapis.com/maps/api/geocode/json", 
-                    #params={"key":"AIzaSyCRi5yASpUL9tw6HRN-0KnNgk5JWCdul0M", 
+                    #params={"key":"ADD_KEY_HERE", 
                             #"address":address})
             
             #bing
             response = requests.get("http://dev.virtualearth.net/REST/v1/Locations/" + address,
                         params={"include":"queryParse",
-                                "key":"AjhzSUKjNFFV0ckKVCV64tSLhw_EWSlN6LP9UPiWdEJDRMZn3Vm17HtoSclZZfO_ "})
+                                "key":"ADD KEY HERE"})
 
             try:
                 #google
