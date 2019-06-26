@@ -26,7 +26,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             
             #google
             response = requests.get("https://maps.googleapis.com/maps/api/geocode/json", 
-                    params={"key":"AIzaSyCcsjo5ZQvWGpzRfyY2sslPaSESogu0JrQ", 
+                    params={"key":"api key", 
                             "address":input_name})
             
             try:

@@ -21,7 +21,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             response = requests.get("http://dev.virtualearth.net/REST/v1/Locations/" + input_name,
                         params={"include":"queryParse",
                                 'output': "json",
-                                "key":"AjhzSUKjNFFV0ckKVCV64tSLhw_EWSlN6LP9UPiWdEJDRMZn3Vm17HtoSclZZfO_ "})
+                                "key":"api key"})
 
             try:
                 data = response.json()
