@@ -3,7 +3,7 @@ import csv
 from unidecode import unidecode
 
 with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
-    with open('files/bing_output_2.0.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
+    with open('files/bing_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
         
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(['affiliation', 'freq', 'formatted_address', 'locality', 'admin_district', 'country', 'lat', 'lng'])
@@ -12,6 +12,9 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
         
         for row in reader:
             cnt += 1
+            
+            if cnt > 10:
+                break
             
             #only print out every 100th number
             if cnt % 100 == 0:
@@ -24,7 +27,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             response = requests.get("http://dev.virtualearth.net/REST/v1/Locations/?",
                         params={"query": input_name,
                                 "include": "queryParse",
-                                "key": "api_key"})
+                                "key": "Ahrn_2njXN5bYX-QWFpvfQqJJFTuIOvCnacTFbTLO48RL8rjYVZbmC5Fw6YTM5tb "})
             
             try:
                 response.json()
@@ -34,6 +37,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
            
             try:
                 data = response.json()
+                print(data)
                 
                 row_list = []
                 row_list.append(input_name)

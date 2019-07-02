@@ -4,7 +4,7 @@ from unidecode import unidecode
 
 
 with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
-    with open('files/google_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
+    with open('files/google_writeup_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
         
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(['affiliation', 'freq', "formatted_address",'locality', 'admin_district', 'country', 'lat', 'lng'])
@@ -28,7 +28,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             
             #google
             response = requests.get("https://maps.googleapis.com/maps/api/geocode/json", 
-                    params={"key": "api_key", 
+                    params={"key": "AIzaSyCsi6Ifq8Y2kispVYnL5DfZX3lK2--DsTs", 
                             "address": input_name})
             
             try:
