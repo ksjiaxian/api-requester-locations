@@ -2,9 +2,10 @@ import requests
 import csv
 from unidecode import unidecode
 
+api_key = 'ADD API KEY HERE'
 
-with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
-    with open('files/google_writeup_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
+with open('inputs/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
+    with open('outputs/google_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
         
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(['affiliation', 'freq', "formatted_address",'locality', 'admin_district', 'country', 'lat', 'lng'])
@@ -28,28 +29,43 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             
             #google
             response = requests.get("https://maps.googleapis.com/maps/api/geocode/json", 
-                    params={"key": "AIzaSyCsi6Ifq8Y2kispVYnL5DfZX3lK2--DsTs", 
+                    params={"key": api_key, 
                             "address": input_name})
+            
+            #check if the api key is inputted
+            if response.json()['status'] == 'REQUEST_DENIED':
+                print('API Key error: make sure that your api key is valid and inputted above')
+                break
             
             try:
                 response.json()
             except ValueError:
-                tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
+                tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
                 continue
             
             try:
                 data = response.json()
+                
+                #note that we are assuming that the search engine returns the best result first
+                data_results = None
+                if data['status'] == 'ZERO_RESULTS':
+                    #if there is no data returned from the API, just write out N/A and move on
+                    tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
+                    continue
+                else:
+                    data_results = data['results'][0]
+                
             
                 #get the formatted address
                 try:
-                    formatted_address = data['results'][0]['formatted_address']
+                    formatted_address = data_results['formatted_address']
                     row_information.append(formatted_address)
                 except:
                     row_information.append("N/A")
                     
                 #get locality
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'locality' in component['types'] or 'sublocality' in component['types']:
                             locality = component['long_name']
                     row_information.append(locality)
@@ -58,7 +74,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                     
                 #get the admin district
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'administrative_area_level_1' in component['types']:
                             admin_district = component['long_name']
                     row_information.append(admin_district)
@@ -67,7 +83,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                             
                 #get the country
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'country' in component['types']:
                             country = component['long_name']
                     row_information.append(country)
@@ -75,8 +91,8 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                     row_information.append("N/A")
                     
                 try:
-                    lat = data['results'][0]['geometry']['location']['lat']
-                    lng = data['results'][0]['geometry']['location']['lng']
+                    lat = data_results['geometry']['location']['lat']
+                    lng = data_results['geometry']['location']['lng']
                 except:
                     lat = "N/A"
                     lng = "N/A"
@@ -87,21 +103,26 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                 tsv_writer.writerow(row_information)
             
             except:
+                #try again, except now, print out the "unidecode" conversion to ASCII characters
                 data = response.json()
+                
+                #note that we are assuming that the search engine returns the best result first
+                data_results = data['results'][0]
+                
                 row_information = []
                 row_information.append(input_name)
                 row_information.append(freq)
             
                 #get the formatted address
                 try:
-                    formatted_address = data['results'][0]['formatted_address']
+                    formatted_address = data_results['formatted_address']
                     row_information.append(unidecode(formatted_address))
                 except:
                     row_information.append("N/A")
                     
                 #get locality
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'locality' in component['types'] or 'sublocality' in component['types']:
                             locality = component['long_name']
                     row_information.append(unidecode(locality))
@@ -110,7 +131,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                     
                 #get the admin district
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'administrative_area_level_1' in component['types']:
                             admin_district = component['long_name']
                     row_information.append(unidecode(admin_district))
@@ -119,7 +140,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                             
                 #get the country
                 try:
-                    for component in data['results'][0]['address_components']:
+                    for component in data_results['address_components']:
                         if 'country' in component['types']:
                             country = component['long_name']
                     row_information.append(unidecode(country))
@@ -127,8 +148,8 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                     row_information.append("N/A")
                     
                 try:
-                    lat = data['results'][0]['geometry']['location']['lat']
-                    lng = data['results'][0]['geometry']['location']['lng']
+                    lat = data_results['geometry']['location']['lat']
+                    lng = data_results['geometry']['location']['lng']
                 except:
                     lat = "N/A"
                     lng = "N/A"

@@ -2,8 +2,10 @@ import requests
 import csv
 from unidecode import unidecode
 
-with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
-    with open('files/bing_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
+api_key = 'ADD API KEY HERE'
+
+with open('inputs/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
+    with open('outputs/bing_output.tsv', 'w', newline="\n", encoding='utf-8') as out_file:
         
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(['affiliation', 'freq', 'formatted_address', 'locality', 'admin_district', 'country', 'lat', 'lng'])
@@ -12,9 +14,6 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
         
         for row in reader:
             cnt += 1
-            
-            if cnt > 10:
-                break
             
             #only print out every 100th number
             if cnt % 100 == 0:
@@ -27,26 +26,39 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
             response = requests.get("http://dev.virtualearth.net/REST/v1/Locations/?",
                         params={"query": input_name,
                                 "include": "queryParse",
-                                "key": "Ahrn_2njXN5bYX-QWFpvfQqJJFTuIOvCnacTFbTLO48RL8rjYVZbmC5Fw6YTM5tb "})
+                                "key": api_key})
+            
+            #check if the api key is inputted
+            if response.status_code == 401:
+                print('API Key error: make sure that your api key is valid and inputted above')
+                break
             
             try:
                 response.json()
             except ValueError:
-                tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
+                tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
                 continue
            
             try:
                 data = response.json()
-                print(data)
                 
                 row_list = []
                 row_list.append(input_name)
                 row_list.append(freq)
                 
+                #note that we are assuming that the search engine returns the best result first
+                address_data = None
+                try:
+                    address_data = data['resourceSets'][0]['resources'][0]['address']
+                except IndexError:
+                    #if there is no data returned from the API, just write out N/A and move on
+                    tsv_writer.writerow([input_name, freq, 'N/A', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A'])
+                    continue
+                
                 # formatted_address
                 try:
                     #bing
-                    address = data['resourceSets'][0]['resources'][0]['address']['formattedAddress']
+                    address = address_data['formattedAddress']
                     row_list.append(address)
                 except:
                     row_list.append("N/A")
@@ -54,7 +66,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                 # locality
                 try:
                     #bing
-                    locality = data['resourceSets'][0]['resources'][0]['address']['locality']
+                    locality = address_data['locality']
                     row_list.append(locality)
                 except:
                     row_list.append("N/A")
@@ -62,7 +74,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                 #admin district or state
                 try:
                     #bing
-                    admin_district = data['resourceSets'][0]['resources'][0]['address']['adminDistrict']
+                    admin_district = address_data['adminDistrict']
                     row_list.append(admin_district)
                 except:
                     row_list.append("N/A")
@@ -70,7 +82,7 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                 # country
                 try:
                     #bing
-                    country = data['resourceSets'][0]['resources'][0]['address']['countryRegion']
+                    country = address_data['countryRegion']
                     row_list.append(country)
                 except:
                     row_list.append("N/A")
@@ -90,28 +102,30 @@ with open('files/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                 tsv_writer.writerow(row_list)
                 
             except:
+                #try again, except now, print out the "unidecode" conversion to ASCII characters
                 data = response.json()
             
                 row_list = []
                 row_list.append(input_name)
                 row_list.append(freq)
                 
+                #note that we are assuming that the search engine returns the best result first
+                address_data = data['resourceSets'][0]['resources'][0]['address']
+                
                 # formatted_address
-                address = data['resourceSets'][0]['resources'][0]['address']['formattedAddress']
+                address = address_data['formattedAddress']
                 row_list.append(unidecode(address))
                 
-                
-                
                 # locality
-                locality = data['resourceSets'][0]['resources'][0]['address']['locality']
+                locality = address_data['locality']
                 row_list.append(unidecode(locality))
                 
                 #admin district or state
-                admin_district = data['resourceSets'][0]['resources'][0]['address']['adminDistrict']
+                admin_district = address_data['adminDistrict']
                 row_list.append(unidecode(admin_district))
                 
                 # country
-                country = data['resourceSets'][0]['resources'][0]['address']['countryRegion']
+                country = address_data['countryRegion']
                 row_list.append(unidecode(country))
                 
                 
