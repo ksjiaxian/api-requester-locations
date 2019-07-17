@@ -1,3 +1,5 @@
+#created by Kenneth Shinn and Stacey Chen
+
 import requests
 import csv
 from unidecode import unidecode
@@ -28,9 +30,9 @@ with open('inputs/affiliationnamefreq100.tsv', encoding='latin-1') as tsvfile:
                                 "include": "queryParse",
                                 "key": api_key})
             
-            #check if the api key is inputted
+            #check if the API key is inputed
             if response.status_code == 401:
-                print('API Key error: make sure that your api key is valid and inputted above')
+                print('API Key error: make sure that your API key is valid and inputed above')
                 break
             
             try:
